@@ -1,16 +1,25 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Container, Card, Box } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  Container,
+  Card,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+  Paper,
+} from "@mui/material";
 
 import { FilterValue, FilterKey, Header, Toolbar } from "./components";
+import { useGetBetSites, useGetGameData } from "./hooks";
 
 import {
   BetMarketTypeEnumTypeTwo,
   LeagueEnum,
   useBetCacheSubscription,
-  useGamesDataQuery,
 } from "./@generated/graphql/types-and-hooks";
-import { showToast } from "./utils/toast";
 
 const App: React.FC = () => {
   const [league, setLeague] = useState<LeagueEnum>(LeagueEnum.Nba);
@@ -18,16 +27,6 @@ const App: React.FC = () => {
     BetMarketTypeEnumTypeTwo.MoneyLine
   );
   const [gameIds, setGameIds] = useState<string[]>([]);
-  const { data } = useGamesDataQuery({
-    variables: {
-      ids: gameIds,
-      league: league,
-    },
-    onCompleted: () => {
-      showToast("Successfully get game data", "success");
-    },
-    skip: gameIds.length === 0,
-  });
 
   const { data: subscriptionData } = useBetCacheSubscription({
     variables: {
@@ -39,7 +38,12 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    const newIds = subscriptionData?.betCache?.map((c) => c.gameId) ?? [];
+    const newIds: string[] = [];
+    subscriptionData?.betCache?.forEach((cache) => {
+      if (cache?.gameId) {
+        newIds.push(cache.gameId);
+      }
+    });
     setGameIds(Array.from(new Set(newIds)));
   }, [subscriptionData]);
 
@@ -55,28 +59,34 @@ const App: React.FC = () => {
     []
   );
 
-  const columns: GridColDef[] = [
-    {
-      field: "id",
-      headerName: "id",
-      sortable: true,
-      width: 300,
+  const sites = useGetBetSites();
+  const gameData = useGetGameData(gameIds, league);
+
+  const getBetValue = useCallback(
+    (gameId: string, teamId: number, siteId: number) => {
+      let result = "";
+      subscriptionData?.betCache?.forEach((cache) => {
+        if (
+          cache?.gameId === gameId &&
+          (cache?.conditions ?? []).length > 0 &&
+          (cache?.listings ?? []).length > 0
+        ) {
+          cache.conditions?.forEach((condition, index) => {
+            if (
+              condition?.teamId === teamId &&
+              cache.listings?.[index]?.site?.id === siteId
+            ) {
+              if (condition.betValue) {
+                result = `${condition.betValue}`;
+              }
+            }
+          });
+        }
+      });
+      return result;
     },
-    {
-      field: "home",
-      headerName: "Home Team",
-      sortable: false,
-      valueGetter: (_, row) => row.homeTeam.name,
-      width: 200,
-    },
-    {
-      field: "away",
-      headerName: "Away Team",
-      sortable: false,
-      valueGetter: (_, row) => row.awayTeam.name,
-      width: 200,
-    },
-  ];
+    [subscriptionData]
+  );
 
   return (
     <>
@@ -91,17 +101,52 @@ const App: React.FC = () => {
             />
           </Card>
           <Card variant="outlined" sx={{ p: 2 }}>
-            <DataGrid
-              sx={{ height: 600 }}
-              rows={data?.games ?? []}
-              columns={columns}
-              initialState={{
-                pagination: {
-                  paginationModel: { page: 0, pageSize: 100 },
-                },
-              }}
-              pageSizeOptions={[100]}
-            />
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Game Id</TableCell>
+                    <TableCell>Teams</TableCell>
+                    {sites.map((betSite) => (
+                      <TableCell key={betSite?.id}>
+                        <img
+                          src={betSite.iconImage}
+                          width={40}
+                          height={40}
+                          alt={betSite.name}
+                          title={betSite.name}
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {gameData.map((game) => (
+                    <>
+                      <TableRow>
+                        <TableCell rowSpan={3}>{game.id}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>{game.homeTeam.name}</TableCell>
+                        {sites.map((betSite) => (
+                          <TableCell key={betSite.id}>
+                            {getBetValue(game.id, game.homeTeam.id, betSite.id)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>{game.awayTeam.name}</TableCell>
+                        {sites.map((betSite) => (
+                          <TableCell key={betSite.id}>
+                            {getBetValue(game.id, game.awayTeam.id, betSite.id)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Card>
         </Container>
       </Box>

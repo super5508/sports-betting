@@ -392,6 +392,78 @@ enum BetMarketTypeEnumTypeTwo {
   GAME_OVERTIME
 }
 
+enum BetMarketSiteEnumTypeTwo {
+  FAN_DUEL
+  MGM
+  DRAFT_KINGS
+  POINTS_BET
+  BOVADA
+  UNI_BET
+  CAESARS
+  ESPN_BET
+  PINNACLE
+  BET_ONLINE_AG
+  WYNN
+  LOW_VIG
+  BET_365
+  BET_REGAL
+  PROPHET_BETTING
+  FLIFF
+  THE_SCORE
+  BETWAY_US
+  SUGAR_HOUSE
+  BET_RIVERS
+  SPORTS_INTERACTION
+  BODOG
+  SUPERBOOK
+  HARD_ROCK
+  BET_99
+  BETWAY_CA
+  BET_JACK
+  BALLY_BET
+  BETANO
+  LADBROKES
+  PRO_LINE_PLUS
+  CLUTCH_BET
+  BOOKMAKER_EU
+  OVER_TIME_MARKETS
+  BET_PLAYS
+  DEX_SPORT
+  BETOBET
+  TIPICO
+  PARTY_POKER
+  BLUE_BET
+  VIRGIN_BET
+  COOL_BET
+  PS_3838
+  SPORT_TRADE
+  MY_BOOKIE
+  FANATICS
+  _888_SPORT
+  PRIME_SPORTS
+  CIRCA
+  NO_VIG
+  STX
+  STAKE
+  WINDCREEK
+  BET_FRED
+}
+
+enum BetMarketTypeGroupEnumTypeTwo {
+  MONEYLINE
+  SPREAD
+  TOTALS
+  PLAYER_PROP
+  TEAM
+  RACE_TO
+  GAME
+  UNKNOWN
+}
+
+enum BetMarketTypeEnum {
+  
+}
+
 type TeamType {
   id: UShort!
   name: String!
@@ -421,10 +493,45 @@ union IGameType = NBAGameType | NFLGameType
 
 type Query {
   games(ids: [Guid]!, league: LeagueEnum!): [IGameType]
+  constants(): ConstantsType
 }
 
 type Mutation {
   user: UserMutationType
+}
+
+type ConstantsType {
+  betSites: [BetSiteType]
+  betGroups: [BetMarketTypeGroupInfoType]
+  betMarketInfo: [BetMarketInfoType]
+  betMarketTypes: [BetMarketTypeEnumTypeTwo]
+  leagues: [LeagueConstantType]
+  sports: [SportEnum]
+  restrictions: [PickUserRestrictionsListType]
+}
+
+type BetSiteType {
+  id: Byte!
+  name: String!
+  abbreviation: String!
+  iconImage: String!
+  fullImage: String!
+  isSisterSite: Boolean!
+  sisterSiteIds: [Byte]
+  enumValue: BetMarketSiteEnumTypeTwo
+}
+
+type BetMarketTypeGroupInfoType {
+  value: BetMarketTypeGroupEnumTypeTwo
+  order: UInt!
+}
+
+type BetMarketInfoType {
+  value: BetMarketTypeEnum!
+  displayName: String!
+  groupValue: BetMarketTypeGroupEnum!
+  order: UInt!
+  time: BetMarketTypeTimeEnum!
 }
 
 type Subscription {

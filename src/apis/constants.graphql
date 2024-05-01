@@ -1,0 +1,10 @@
+query constants {
+  constants {
+    betSites {
+      id
+      name
+      iconImage
+      enumValue
+    }
+  }
+}

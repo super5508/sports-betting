@@ -1,5 +1,5 @@
 module.exports = {
-  schema: "./schema.graphql",
+  schema: "https://api.picktheodds.app/graphql",
   documents: "./src/**/*.graphql",
   extensions: {
     codegen: {
