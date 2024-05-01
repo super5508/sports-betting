@@ -1,0 +1,7 @@
+mutation UserToken {
+  user {
+    token {
+      accessToken
+    }
+  }
+}

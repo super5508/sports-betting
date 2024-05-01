@@ -1,0 +1,28 @@
+query GamesData($ids: [Guid]!, $league: LeagueEnum!) {
+  games(ids: $ids, league: $league) {
+    ... on NBAGameType {
+      id
+      awayTeam {
+        name
+      }
+      homeTeam {
+        name
+      }
+    }
+    ... on NFLGameType {
+      id
+      awayTeam {
+        name
+      }
+      homeTeam {
+        name
+      }
+    }
+  }
+}
+
+subscription BetCache($request: InputBetCacheSubscriptionRequestType!) {
+  betCache(request: $request) {
+    gameId
+  }
+}
