@@ -4,6 +4,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 import { client } from "./apolloClient";
+import { BetContextProvider } from "./context/BetContext";
 
 import "./index.css";
 
@@ -17,7 +18,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ApolloProvider client={client}>
-    <App />
+    <BetContextProvider>
+      <App />
+    </BetContextProvider>
   </ApolloProvider>
 );
 

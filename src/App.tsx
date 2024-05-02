@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Container,
   Card,
@@ -14,7 +14,8 @@ import {
 
 import { FilterValue, FilterKey, Header, Toolbar, BetCell } from "./components";
 import { useBetCache, useGetBetSites, useGetGameData } from "./hooks";
-import { initBetValue } from "./utils/bet";
+import { useBetContext } from "./context/BetContext";
+import { generateKey } from "./utils/bet";
 
 import {
   BetMarketTypeEnumTypeTwo,
@@ -22,22 +23,12 @@ import {
 } from "./@generated/graphql/types-and-hooks";
 
 const App: React.FC = () => {
-  const [curTime, setCurTime] = useState(Date.now());
   const [league, setLeague] = useState<LeagueEnum>(LeagueEnum.Nba);
   const [betMarketType, setBetMarketType] = useState<BetMarketTypeEnumTypeTwo>(
     BetMarketTypeEnumTypeTwo.MoneyLine
   );
   const [cacheGameIds] = useBetCache(league, betMarketType);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurTime(Date.now());
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  const { values, initValue } = useBetContext();
 
   const handleChange = useCallback(
     <K extends FilterKey>(key: K, value: FilterValue<K>) => {
@@ -46,9 +37,9 @@ const App: React.FC = () => {
       } else if (key === "betMarketType") {
         setBetMarketType(value as BetMarketTypeEnumTypeTwo);
       }
-      initBetValue();
+      initValue();
     },
-    []
+    [initValue]
   );
 
   const sites = useGetBetSites();
@@ -97,10 +88,15 @@ const App: React.FC = () => {
                         {sites.map((betSite) => (
                           <BetCell
                             key={betSite.id}
-                            curTime={curTime}
-                            gameId={game.id}
-                            site={betSite}
-                            teamId={game.homeTeam.id}
+                            value={
+                              values[
+                                generateKey(
+                                  game.id,
+                                  game.homeTeam.id,
+                                  betSite.id
+                                )
+                              ]
+                            }
                             betMarketType={betMarketType}
                           />
                         ))}
@@ -110,10 +106,15 @@ const App: React.FC = () => {
                         {sites.map((betSite) => (
                           <BetCell
                             key={betSite.id}
-                            curTime={curTime}
-                            gameId={game.id}
-                            site={betSite}
-                            teamId={game.awayTeam.id}
+                            value={
+                              values[
+                                generateKey(
+                                  game.id,
+                                  game.awayTeam.id,
+                                  betSite.id
+                                )
+                              ]
+                            }
                             betMarketType={betMarketType}
                           />
                         ))}
