@@ -13,43 +13,36 @@ import {
 } from "@mui/material";
 
 import { FilterValue, FilterKey, Header, Toolbar } from "./components";
-import { useGetBetSites, useGetGameData } from "./hooks";
+import { useBetCache, useGetBetSites, useGetGameData } from "./hooks";
+import { generateKey } from "./utils/bet";
 
 import {
   BetMarketTypeEnumTypeTwo,
   LeagueEnum,
-  useBetCacheSubscription,
 } from "./@generated/graphql/types-and-hooks";
+import { useBetContext } from "./context/BetContext";
 
 const App: React.FC = () => {
+  const [curTime, setCurTime] = useState(Date.now());
   const [league, setLeague] = useState<LeagueEnum>(LeagueEnum.Nba);
   const [betMarketType, setBetMarketType] = useState<BetMarketTypeEnumTypeTwo>(
     BetMarketTypeEnumTypeTwo.MoneyLine
   );
-  const [gameIds, setGameIds] = useState<string[]>([]);
-
-  const { data: subscriptionData } = useBetCacheSubscription({
-    variables: {
-      request: {
-        league: league,
-        betMarketType: betMarketType,
-      },
-    },
-  });
+  const [cacheGameIds] = useBetCache(league, betMarketType);
+  const { values } = useBetContext();
 
   useEffect(() => {
-    const newIds: string[] = [];
-    subscriptionData?.betCache?.forEach((cache) => {
-      if (cache?.gameId) {
-        newIds.push(cache.gameId);
-      }
-    });
-    setGameIds(Array.from(new Set(newIds)));
-  }, [subscriptionData]);
+    const intervalId = setInterval(() => {
+      setCurTime(Date.now());
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   const handleChange = useCallback(
     <K extends FilterKey>(key: K, value: FilterValue<K>) => {
-      setGameIds([]);
       if (key === "league") {
         setLeague(value as LeagueEnum);
       } else if (key === "betMarketType") {
@@ -60,32 +53,18 @@ const App: React.FC = () => {
   );
 
   const sites = useGetBetSites();
-  const gameData = useGetGameData(gameIds, league);
+  const gameData = useGetGameData(cacheGameIds, league);
 
-  const getBetValue = useCallback(
+  const getCellBackground = useCallback(
     (gameId: string, teamId: number, siteId: number) => {
-      let result = "";
-      subscriptionData?.betCache?.forEach((cache) => {
-        if (
-          cache?.gameId === gameId &&
-          (cache?.conditions ?? []).length > 0 &&
-          (cache?.listings ?? []).length > 0
-        ) {
-          cache.conditions?.forEach((condition, index) => {
-            if (
-              condition?.teamId === teamId &&
-              cache.listings?.[index]?.site?.id === siteId
-            ) {
-              if (condition.betValue) {
-                result = `${condition.betValue}`;
-              }
-            }
-          });
-        }
-      });
-      return result;
+      const value = values[generateKey(gameId, teamId, siteId)];
+      if (!value) {
+        return "transparent";
+      }
+      console.log(value.lastUpdated);
+      return value.lastUpdated < curTime - 5000 ? "red" : "transparent";
     },
-    [subscriptionData]
+    [curTime, values]
   );
 
   return (
@@ -129,16 +108,50 @@ const App: React.FC = () => {
                       <TableRow>
                         <TableCell>{game.homeTeam.name}</TableCell>
                         {sites.map((betSite) => (
-                          <TableCell key={betSite.id}>
-                            {getBetValue(game.id, game.homeTeam.id, betSite.id)}
+                          <TableCell
+                            key={betSite.id}
+                            sx={{
+                              background: getCellBackground(
+                                game.id,
+                                game.homeTeam.id,
+                                betSite.id
+                              ),
+                            }}
+                          >
+                            {
+                              values[
+                                generateKey(
+                                  game.id,
+                                  game.homeTeam.id,
+                                  betSite.id
+                                )
+                              ]?.value
+                            }
                           </TableCell>
                         ))}
                       </TableRow>
                       <TableRow>
                         <TableCell>{game.awayTeam.name}</TableCell>
                         {sites.map((betSite) => (
-                          <TableCell key={betSite.id}>
-                            {getBetValue(game.id, game.awayTeam.id, betSite.id)}
+                          <TableCell
+                            key={betSite.id}
+                            sx={{
+                              background: getCellBackground(
+                                game.id,
+                                game.homeTeam.id,
+                                betSite.id
+                              ),
+                            }}
+                          >
+                            {
+                              values[
+                                generateKey(
+                                  game.id,
+                                  game.awayTeam.id,
+                                  betSite.id
+                                )
+                              ]?.value
+                            }
                           </TableCell>
                         ))}
                       </TableRow>
