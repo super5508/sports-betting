@@ -11,6 +11,7 @@ import {
   TableContainer,
   Paper,
 } from "@mui/material";
+import { AutoSizer } from "react-virtualized";
 
 import { FilterValue, FilterKey, Header, Toolbar, BetCell } from "./components";
 import { useBetCache, useGetBetSites, useGetGameData } from "./hooks";
@@ -57,73 +58,77 @@ const App: React.FC = () => {
               onChange={handleChange}
             />
           </Card>
-          <Card variant="outlined" sx={{ p: 2 }}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Game Id</TableCell>
-                    <TableCell>Teams</TableCell>
-                    {sites.map((betSite) => (
-                      <TableCell key={betSite.id}>
-                        <img
-                          src={betSite.iconImage}
-                          width={40}
-                          height={40}
-                          alt={betSite.name}
-                          title={betSite.name}
-                        />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {gameData.map((game) => (
-                    <>
+          <Card variant="outlined" sx={{ width: "100%", height: 600 }}>
+            <AutoSizer>
+              {({ height, width }) => (
+                <TableContainer component={Paper} style={{ width, height }}>
+                  <Table>
+                    <TableHead>
                       <TableRow>
-                        <TableCell rowSpan={3}>{game.id}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>{game.homeTeam.name}</TableCell>
+                        <TableCell>Game Id</TableCell>
+                        <TableCell>Teams</TableCell>
                         {sites.map((betSite) => (
-                          <BetCell
-                            key={betSite.id}
-                            value={
-                              values[
-                                generateKey(
-                                  game.id,
-                                  game.homeTeam.id,
-                                  betSite.id
-                                )
-                              ]
-                            }
-                            betMarketType={betMarketType}
-                          />
+                          <TableCell key={betSite.id}>
+                            <img
+                              src={betSite.iconImage}
+                              width={40}
+                              height={40}
+                              alt={betSite.name}
+                              title={betSite.name}
+                            />
+                          </TableCell>
                         ))}
                       </TableRow>
-                      <TableRow>
-                        <TableCell>{game.awayTeam.name}</TableCell>
-                        {sites.map((betSite) => (
-                          <BetCell
-                            key={betSite.id}
-                            value={
-                              values[
-                                generateKey(
-                                  game.id,
-                                  game.awayTeam.id,
-                                  betSite.id
-                                )
-                              ]
-                            }
-                            betMarketType={betMarketType}
-                          />
-                        ))}
-                      </TableRow>
-                    </>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {gameData.map((game) => (
+                        <>
+                          <TableRow>
+                            <TableCell rowSpan={3}>{game.id}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>{game.homeTeam.name}</TableCell>
+                            {sites.map((betSite) => (
+                              <BetCell
+                                key={betSite.id}
+                                value={
+                                  values[
+                                    generateKey(
+                                      game.id,
+                                      game.homeTeam.id,
+                                      betSite.id
+                                    )
+                                  ]
+                                }
+                                betMarketType={betMarketType}
+                              />
+                            ))}
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>{game.awayTeam.name}</TableCell>
+                            {sites.map((betSite) => (
+                              <BetCell
+                                key={betSite.id}
+                                value={
+                                  values[
+                                    generateKey(
+                                      game.id,
+                                      game.awayTeam.id,
+                                      betSite.id
+                                    )
+                                  ]
+                                }
+                                betMarketType={betMarketType}
+                              />
+                            ))}
+                          </TableRow>
+                        </>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </AutoSizer>
           </Card>
         </Container>
       </Box>
