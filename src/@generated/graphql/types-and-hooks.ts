@@ -1889,7 +1889,7 @@ export type BetCacheSubscriptionVariables = Exact<{
 }>;
 
 
-export type BetCacheSubscription = { readonly __typename: 'Subscription', readonly betCache?: ReadonlyArray<{ readonly __typename: 'BetMarketType', readonly gameId: string, readonly conditions?: ReadonlyArray<{ readonly __typename: 'BetMarketConditionType', readonly betValue?: any | null, readonly betValueMax?: any | null, readonly teamId?: any | null, readonly playerId?: any | null, readonly marketType: BetMarketTypeEnum } | null> | null, readonly listings?: ReadonlyArray<{ readonly __typename: 'BetMarketListingType', readonly site?: { readonly __typename: 'BetSiteType', readonly id: any } | null } | null> | null } | null> | null };
+export type BetCacheSubscription = { readonly __typename: 'Subscription', readonly betCache?: ReadonlyArray<{ readonly __typename: 'BetMarketType', readonly gameId: string, readonly conditions?: ReadonlyArray<{ readonly __typename: 'BetMarketConditionType', readonly betValue?: any | null, readonly betValueMax?: any | null, readonly teamId?: any | null, readonly playerId?: any | null, readonly marketType: BetMarketTypeEnum } | null> | null, readonly listings?: ReadonlyArray<{ readonly __typename: 'BetMarketListingType', readonly americanOdds?: number | null, readonly site?: { readonly __typename: 'BetSiteType', readonly id: any } | null } | null> | null } | null> | null };
 
 
 export const UserTokenDocument = gql`
@@ -1986,6 +1986,7 @@ export const BetCacheDocument = gql`
       site {
         id
       }
+      americanOdds
     }
   }
 }

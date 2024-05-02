@@ -39,6 +39,7 @@ subscription BetCache($request: InputBetCacheSubscriptionRequestType!) {
       site {
         id
       }
+      americanOdds
     }
   }
 }

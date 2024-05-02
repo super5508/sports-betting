@@ -5,14 +5,12 @@ import {
   useBetCacheSubscription,
 } from "../@generated/graphql/types-and-hooks";
 
-import { generateKey } from "../utils/bet";
-import { useBetContext } from "../context/BetContext";
+import { setBetValue } from "../utils/bet";
 
 export const useBetCache = (
   league: LeagueEnum,
   betMarketType: BetMarketTypeEnumTypeTwo
 ) => {
-  const { setValue } = useBetContext();
   const [gameIds, setGameIds] = useState<string[]>([]);
   const { data: subscriptionData } = useBetCacheSubscription({
     variables: {
@@ -54,13 +52,18 @@ export const useBetCache = (
         cache.conditions?.forEach((condition, index) => {
           const siteId = cache.listings?.[index]?.site?.id;
           if (condition?.teamId && siteId && condition.betValue !== undefined) {
-            const key = generateKey(cache.gameId, condition.teamId, siteId);
-            setValue(key, condition.betValue);
+            setBetValue(
+              cache.gameId,
+              condition.teamId,
+              siteId,
+              condition.betValue,
+              cache?.listings[index]?.americanOdds
+            );
           }
         });
       }
     });
-  }, [subscriptionData, setValue]);
+  }, [subscriptionData]);
 
   return [gameIds];
 };

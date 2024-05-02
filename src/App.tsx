@@ -12,15 +12,13 @@ import {
   Paper,
 } from "@mui/material";
 
-import { FilterValue, FilterKey, Header, Toolbar } from "./components";
+import { FilterValue, FilterKey, Header, Toolbar, BetCell } from "./components";
 import { useBetCache, useGetBetSites, useGetGameData } from "./hooks";
-import { generateKey } from "./utils/bet";
 
 import {
   BetMarketTypeEnumTypeTwo,
   LeagueEnum,
 } from "./@generated/graphql/types-and-hooks";
-import { useBetContext } from "./context/BetContext";
 
 const App: React.FC = () => {
   const [curTime, setCurTime] = useState(Date.now());
@@ -29,7 +27,6 @@ const App: React.FC = () => {
     BetMarketTypeEnumTypeTwo.MoneyLine
   );
   const [cacheGameIds] = useBetCache(league, betMarketType);
-  const { values } = useBetContext();
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -54,17 +51,6 @@ const App: React.FC = () => {
 
   const sites = useGetBetSites();
   const gameData = useGetGameData(cacheGameIds, league);
-
-  const getCellBackground = useCallback(
-    (gameId: string, teamId: number, siteId: number) => {
-      const value = values[generateKey(gameId, teamId, siteId)];
-      if (!value) {
-        return "transparent";
-      }
-      return value.lastUpdated > curTime - 2000 ? "red" : "transparent";
-    },
-    [curTime, values]
-  );
 
   return (
     <>
@@ -107,51 +93,27 @@ const App: React.FC = () => {
                       <TableRow>
                         <TableCell>{game.homeTeam.name}</TableCell>
                         {sites.map((betSite) => (
-                          <TableCell
+                          <BetCell
                             key={betSite.id}
-                            sx={{
-                              background: getCellBackground(
-                                game.id,
-                                game.homeTeam.id,
-                                betSite.id
-                              ),
-                            }}
-                          >
-                            {
-                              values[
-                                generateKey(
-                                  game.id,
-                                  game.homeTeam.id,
-                                  betSite.id
-                                )
-                              ]?.value
-                            }
-                          </TableCell>
+                            curTime={curTime}
+                            gameId={game.id}
+                            site={betSite}
+                            teamId={game.homeTeam.id}
+                            betMarketType={betMarketType}
+                          />
                         ))}
                       </TableRow>
                       <TableRow>
                         <TableCell>{game.awayTeam.name}</TableCell>
                         {sites.map((betSite) => (
-                          <TableCell
+                          <BetCell
                             key={betSite.id}
-                            sx={{
-                              background: getCellBackground(
-                                game.id,
-                                game.homeTeam.id,
-                                betSite.id
-                              ),
-                            }}
-                          >
-                            {
-                              values[
-                                generateKey(
-                                  game.id,
-                                  game.awayTeam.id,
-                                  betSite.id
-                                )
-                              ]?.value
-                            }
-                          </TableCell>
+                            curTime={curTime}
+                            gameId={game.id}
+                            site={betSite}
+                            teamId={game.awayTeam.id}
+                            betMarketType={betMarketType}
+                          />
                         ))}
                       </TableRow>
                     </>
