@@ -30,7 +30,6 @@ export const BetContextProvider: React.FC<PropsWithChildren> = ({
     setValues((prev) => {
       const prevVal = prev[key];
       if (prevVal?.value !== value) {
-        console.log("change");
         return {
           ...prev,
           [key]: {

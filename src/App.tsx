@@ -61,8 +61,7 @@ const App: React.FC = () => {
       if (!value) {
         return "transparent";
       }
-      console.log(value.lastUpdated);
-      return value.lastUpdated < curTime - 5000 ? "red" : "transparent";
+      return value.lastUpdated > curTime - 2000 ? "red" : "transparent";
     },
     [curTime, values]
   );
