@@ -36,10 +36,10 @@ const BetCellInner: React.FC<BetCellProps> = ({
         background: cellBackground,
       }}
     >
-      {value?.value}
       {betMarketType === BetMarketTypeEnumTypeTwo.Spread && (
-        <> {value?.americanOdd}</>
+        <>{value?.value} </>
       )}
+      {value?.americanOdd}
     </TableCell>
   );
 };

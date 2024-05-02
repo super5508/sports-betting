@@ -44,3 +44,7 @@ export const getBetValue = (gameId: string, teamId: number, siteId: number) => {
   const key = generateKey(gameId, teamId, siteId);
   return betValues.get(key);
 };
+
+export const initBetValue = () => {
+  betValues.clear();
+};

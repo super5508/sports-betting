@@ -49,18 +49,30 @@ export const useBetCache = (
         (cache?.conditions ?? []).length > 0 &&
         (cache?.listings ?? []).length > 0
       ) {
-        cache.conditions?.forEach((condition, index) => {
-          const siteId = cache.listings?.[index]?.site?.id;
-          if (condition?.teamId && siteId && condition.betValue !== undefined) {
+        const condition = cache.conditions?.[0];
+        cache.listings?.forEach((listing) => {
+          if (condition && listing?.site) {
             setBetValue(
               cache.gameId,
               condition.teamId,
-              siteId,
+              listing.site.id,
               condition.betValue,
-              cache?.listings[index]?.americanOdds
+              listing.americanOdds
             );
           }
         });
+        // cache.conditions?.forEach((condition, index) => {
+        //   const siteId = cache.listings?.[index]?.site?.id;
+        //   if (condition?.teamId && siteId && condition.betValue !== undefined) {
+        //     setBetValue(
+        //       cache.gameId,
+        //       condition.teamId,
+        //       siteId,
+        //       condition.betValue,
+        //       cache?.listings[index]?.americanOdds
+        //     );
+        //   }
+        // });
       }
     });
   }, [subscriptionData]);

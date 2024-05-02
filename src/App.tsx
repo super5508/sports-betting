@@ -14,6 +14,7 @@ import {
 
 import { FilterValue, FilterKey, Header, Toolbar, BetCell } from "./components";
 import { useBetCache, useGetBetSites, useGetGameData } from "./hooks";
+import { initBetValue } from "./utils/bet";
 
 import {
   BetMarketTypeEnumTypeTwo,
@@ -45,6 +46,7 @@ const App: React.FC = () => {
       } else if (key === "betMarketType") {
         setBetMarketType(value as BetMarketTypeEnumTypeTwo);
       }
+      initBetValue();
     },
     []
   );
@@ -72,7 +74,7 @@ const App: React.FC = () => {
                     <TableCell>Game Id</TableCell>
                     <TableCell>Teams</TableCell>
                     {sites.map((betSite) => (
-                      <TableCell key={betSite?.id}>
+                      <TableCell key={betSite.id}>
                         <img
                           src={betSite.iconImage}
                           width={40}
