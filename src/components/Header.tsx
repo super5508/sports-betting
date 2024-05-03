@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -9,6 +8,7 @@ import {
   useUserTokenMutation,
 } from "../@generated/graphql/types-and-hooks";
 import { setToken } from "../utils/storage";
+import { Container } from "@mui/material";
 
 export const Header: React.FC = () => {
   const [getUserToken, { loading }] = useUserTokenMutation();
@@ -22,8 +22,8 @@ export const Header: React.FC = () => {
   }, [getUserToken, refetchConstants]);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <AppBar position="static">
+      <Container>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Match Data
@@ -32,7 +32,7 @@ export const Header: React.FC = () => {
             {loading ? "Fetching..." : "Get Token"}
           </Button>
         </Toolbar>
-      </AppBar>
-    </Box>
+      </Container>
+    </AppBar>
   );
 };
