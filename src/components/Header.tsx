@@ -4,17 +4,22 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { useUserTokenMutation } from "../@generated/graphql/types-and-hooks";
+import {
+  useConstantsQuery,
+  useUserTokenMutation,
+} from "../@generated/graphql/types-and-hooks";
 import { setToken } from "../utils/storage";
 
 export const Header: React.FC = () => {
   const [getUserToken, { loading }] = useUserTokenMutation();
+  const { refetch: refetchConstants } = useConstantsQuery();
 
   const handleRequestToken = useCallback(async () => {
     const result = await getUserToken();
     const accessToken = result.data?.user?.token?.accessToken ?? "";
     setToken(accessToken);
-  }, [getUserToken]);
+    await refetchConstants();
+  }, [getUserToken, refetchConstants]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
